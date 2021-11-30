@@ -1,7 +1,6 @@
 <template lang="">
 
-    <div>
-        
+    <div v-if="posts.length > 0">   
         <h3>Posts</h3>
         <post-item 
             v-for="post in posts"
@@ -9,8 +8,11 @@
             :key="post.id"
             @remove="$emit('remove', post)"
         />
-
     </div>  
+
+    <h2 v-else style="color: red;">
+        There are no posts yet
+    </h2>
 
 </template>
 
