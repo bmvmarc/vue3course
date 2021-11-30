@@ -25,7 +25,7 @@ export default {
 
     methods: {
         deletePost() {
-            this.$emit('delete', props.post.id);
+            this.$emit('remove', this.post);
         }
     }
 }
@@ -39,5 +39,6 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        background-color: rgb(194, 241, 99);
     }    
 </style>

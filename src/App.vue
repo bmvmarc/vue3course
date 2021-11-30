@@ -5,7 +5,8 @@
         <post-form
           @create="createPost"/>
         <post-list 
-          :posts="posts"/>
+          :posts="posts"
+          @remove="removePost"/>
         
     </div>
 
@@ -34,6 +35,9 @@ export default {
     methods: {
       createPost(f, s, t) {
         this.posts.push(f);
+      },
+      removePost(post) {
+          this.posts = this.posts.filter(i => i.id != post.id);
       }
     }
 }
