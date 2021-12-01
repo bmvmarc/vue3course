@@ -45,7 +45,7 @@
         />
         <div v-show="isPostsLoading">Posts loading...</div>
         
-        <div class="page-wrapper" v-show="!isPostsLoading">
+ <!--       <div class="page-wrapper" v-show="!isPostsLoading">
             <div 
                 v-for="pageNum in totalPages"
                 :key="pageNum"
@@ -56,6 +56,13 @@
                 @click="changePage(pageNum)">
                 {{ pageNum }}
             </div>
+        </div>
+-->
+
+        <div 
+            class="observer"
+            ref="observer"
+        >
         </div>
 
     </div>
@@ -101,8 +108,8 @@ export default {
       removePost(post) {
           this.posts = this.posts.filter(i => i.id != post.id);
       },
+
       async fetchPosts() {
-          
         try {
             this.isPostsLoading = true;
             
@@ -124,9 +131,30 @@ export default {
             this.isPostsLoading = false;
         }
       },
-      changePage(pageNumber) {
-          this.page = pageNumber;          
-      }
+
+      async loadMorePosts() {
+        try {
+            this.page++;
+            const response = await axios.get('https://jsonplaceholder.typicode.com/posts',
+                    {   
+                        params: {
+                            _page: this.page,
+                            _limit: this.limit
+                        }
+                    });
+            
+            // this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit);
+
+            this.posts = [...this.posts, ...response.data];
+  
+        } catch(err) {
+            alert(err);
+        }
+      },
+
+    //   changePage(pageNumber) {
+    //       this.page = pageNumber;          
+    //   }
     },
         
     computed: {
@@ -140,13 +168,27 @@ export default {
 
     },
     watch: {
-        page(newValue) {
-            this.fetchPosts();
-        }
+        // page(newValue) {
+        //     this.fetchPosts();
+        // }
     },
-
     mounted() {
         this.fetchPosts();
+
+        const options = {
+            // root: document.querySelector('#scrollArea'),
+            rootMargin: '0px',
+            threshold: 1.0
+        }
+        const callback = (entries, observer) => {
+            if (entries[0].isIntersecting && this.page < this.totalPages) {
+                this.loadMorePosts()
+            }
+        }
+
+        const observer = new IntersectionObserver(callback, options);
+        observer.observe(this.$refs.observer);
+
     },
 }
 
@@ -190,4 +232,10 @@ export default {
         margin: 2px;
         background: rgb(150,250,100);        
     }
+
+    .observer {
+        height: 30px;
+        background: green;
+    }
+
 </style>
