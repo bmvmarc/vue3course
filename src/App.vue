@@ -12,6 +12,12 @@
                 Add a new post
             </my-button>   
 
+            <my-input 
+                style="margin: 0 15px"
+                v-model="searchText" 
+                placeholder="search">
+            </my-input>
+
             <my-select
                 v-model="selectedSort"
                 :options="sortOptions"/>
@@ -24,7 +30,6 @@
         </my-button>
 
 
-
         <my-dialog v-model:show="dialogVisible">
             Add a post
             <post-form
@@ -35,7 +40,7 @@
 
         <post-list 
           v-show="!isPostsLoading"
-          :posts="sortedPosts"
+          :posts="readyPosts"
           @remove="removePost"
         />
         <div v-show="isPostsLoading">Posts loading...</div>
@@ -65,6 +70,7 @@ export default {
             dialogVisible: false,
             isPostsLoading: false,
             selectedSort: '',
+            searchText: '',
             sortOptions: [
                 {value: 'title', name: 'By title'},
                 {value: 'body', name: 'By body'}
@@ -96,9 +102,14 @@ export default {
     },
         
     computed: {
-        sortedPosts() {
-            return [...this.posts].sort( (a, b) => a[this.selectedSort]?.localeCompare(b[this.selectedSort]) );
-        }
+        readyPosts() {
+            const strSearch = this.searchText.toLowerCase();
+            return [...this.posts]
+                .filter(i => i.title.toLowerCase().includes(strSearch) 
+                                ||  i.body.toLowerCase().includes(strSearch) )
+                .sort( (a, b) => a[this.selectedSort]?.localeCompare(b[this.selectedSort]) );
+        },
+
     },
     // watch: {
     //     selectedSort(newValue) {
