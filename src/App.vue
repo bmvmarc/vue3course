@@ -3,17 +3,27 @@
     <div class="app">
         <h1>The post page</h1>
 
+        <div class="app-btns">
+
+            <my-button
+                @click="dialogVisible = true"
+                
+            >
+                Add a new post
+            </my-button>   
+
+            <my-select
+                v-model="selectedSort"
+                :options="sortOptions"/>
+
+        </div>
+
         <my-button 
             @click="fetchPosts">
             Load posts
         </my-button>
 
-        <my-button
-            @click="dialogVisible = true"
-            style="margin: 15px 0"
-        >
-            Add a new post
-        </my-button>
+
 
         <my-dialog v-model:show="dialogVisible">
             Add a post
@@ -25,7 +35,7 @@
 
         <post-list 
           v-show="!isPostsLoading"
-          :posts="posts"
+          :posts="sortedPosts"
           @remove="removePost"
         />
         <div v-show="isPostsLoading">Posts loading...</div>
@@ -53,7 +63,12 @@ export default {
             posts: []
             ,
             dialogVisible: false,
-            isPostsLoading: false
+            isPostsLoading: false,
+            selectedSort: '',
+            sortOptions: [
+                {value: 'title', name: 'By title'},
+                {value: 'body', name: 'By body'}
+            ]
         }
     },
 
@@ -80,6 +95,19 @@ export default {
       },
     },
         
+    computed: {
+        sortedPosts() {
+            return [...this.posts].sort( (a, b) => a[this.selectedSort]?.localeCompare(b[this.selectedSort]) );
+        }
+    },
+    // watch: {
+    //     selectedSort(newValue) {
+    //         this.posts.sort((a, b) => {
+    //             return a[newValue]?.localeCompare(b[newValue])
+    //         });
+    //     }
+    // },
+
     mounted() {
         this.fetchPosts();
     },
@@ -97,4 +125,11 @@ export default {
     .app {
         padding: 20px;
     }
+
+    .app-btns {
+       display: flex;
+       justify-content: space-between;
+       margin: 15px 0;
+    }
+
 </style>
