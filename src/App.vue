@@ -45,6 +45,19 @@
         />
         <div v-show="isPostsLoading">Posts loading...</div>
         
+        <div class="page-wrapper" v-show="!isPostsLoading">
+            <div 
+                v-for="pageNum in totalPages"
+                :key="pageNum"
+                :class="{
+                    'page': pageNum != page,
+                    'current-page': pageNum === page
+                }"
+                @click="changePage(pageNum)">
+                {{ pageNum }}
+            </div>
+        </div>
+
     </div>
 
 </template>
@@ -65,12 +78,14 @@ export default {
 
     data() {
         return {
-            posts: []
-            ,
+            posts: [],
             dialogVisible: false,
             isPostsLoading: false,
             selectedSort: '',
             searchText: '',
+            limit: 10,
+            page: 1,  
+            totalPages: 0,        
             sortOptions: [
                 {value: 'title', name: 'By title'},
                 {value: 'body', name: 'By body'}
@@ -90,7 +105,17 @@ export default {
           
         try {
             this.isPostsLoading = true;
-            const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+            
+            const response = await axios.get('https://jsonplaceholder.typicode.com/posts',
+                    {   
+                        params: {
+                            _page: this.page,
+                            _limit: this.limit
+                        }
+                    });
+            
+            this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit);
+
             this.posts = response.data;
   
         } catch(err) {
@@ -99,6 +124,9 @@ export default {
             this.isPostsLoading = false;
         }
       },
+      changePage(pageNumber) {
+          this.page = pageNumber;          
+      }
     },
         
     computed: {
@@ -111,13 +139,11 @@ export default {
         },
 
     },
-    // watch: {
-    //     selectedSort(newValue) {
-    //         this.posts.sort((a, b) => {
-    //             return a[newValue]?.localeCompare(b[newValue])
-    //         });
-    //     }
-    // },
+    watch: {
+        page(newValue) {
+            this.fetchPosts();
+        }
+    },
 
     mounted() {
         this.fetchPosts();
@@ -143,4 +169,25 @@ export default {
        margin: 15px 0;
     }
 
+    .page-wrapper {
+        display: flex;
+        margin-top: 15px;
+    }
+    .page {
+        border: 1px solid black;
+        padding: 10px;
+        margin: 2px;
+        background: rgb(150,150,100);
+    }
+
+    .page:hover {
+        background: rgba(150,250,100, 0.6); 
+    }
+
+    .current-page {
+        border: 2px solid green;
+        padding: 10px;
+        margin: 2px;
+        background: rgb(150,250,100);        
+    }
 </style>
