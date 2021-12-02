@@ -22,6 +22,12 @@
                 @click="$router.push('/about')">
                 About
             </my-button>
+            
+            <my-button
+                class="nav-bar-btn"
+                @click="$router.push('/composition')">
+                Composition API
+            </my-button>            
 
         </div>
     </div>
