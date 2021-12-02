@@ -1,66 +1,55 @@
 <template>
 
     <div>
-
-        <h1>The posts page with store</h1>
-        <h2> {{ $store.getters.doubleLikes }} </h2>
-
+<!--
         <h2> {{ $store.state.isAuth ? 'Username' : 'Please, log in to the system' }} </h2>
 
         <div>
             <my-button @click="$store.commit('incrementLikes')">Like</my-button>
             <my-button @click="$store.commit('decrementLikes')">Dislike</my-button>
         </div>
+-->
 
-
+        <h1>The posts page with store</h1>
         <div class="app-btns">
 
             <my-button
-                @click="dialogVisible = true"
-                
-            >
-                Add a new post
+                @click="dialogVisible = true">
+                    Add a new post
             </my-button>   
 
             <my-input 
                 v-focus
-                style="margin: 0 15px"
-                v-model="searchText" 
+                :model-value="searchText"
+                @update:model-value="setSearchText" 
                 placeholder="Search...">
             </my-input>
 
             <my-select
-                v-model="selectedSort"
+                :model-value="selectedSort"
+                @update:model-value="setSelectedSort"
                 :options="sortOptions"/>
 
         </div>
 
         <my-button 
             @click="fetchPosts">
-            Load posts
+                Load posts
         </my-button>
 
-
         <my-dialog v-model:show="dialogVisible">
-            Add a post
+                Add a post
             <post-form
-            @create="createPost"
-            />
+            @create="createPost"/>
         </my-dialog>
-
 
         <post-list 
           v-show="!isPostsLoading"
-          :posts="readyPosts"
-          @remove="removePost"
-        />
-        <div v-show="isPostsLoading">Posts loading...</div>
+          :posts="this.readyPosts"
+          @remove="removePost" />
 
-        <div 
-            v-intersection="loadMorePosts"
-            class="observer"
-        >
-        </div>
+        <div v-show="isPostsLoading">Posts loading...</div>
+        <div v-intersection="loadMorePosts" class="observer"></div>
 
     </div>
 
@@ -68,9 +57,10 @@
 
 <script>
 import PostForm from '@/components/PostForm.vue';
-import PostList from '@/components/PostList.vue';  // @ is an alias for 'src'
+import PostList from '@/components/PostList.vue';  
 import MyButton from '@/components/UI/MyButton.vue';
-import axios from 'axios';
+
+import {mapState, mapGetters, mapActions, mapMutations} from 'vuex';
 
 export default {
 
@@ -82,84 +72,47 @@ export default {
 
     data() {
         return {
-            posts: [],
-            dialogVisible: false,
-            isPostsLoading: false,
-            selectedSort: '',
-            searchText: '',
-            limit: 10,
-            page: 1,  
-            totalPages: 0,        
-            sortOptions: [
-                {value: 'title', name: 'By title'},
-                {value: 'body', name: 'By body'}
-            ]
+            dialogVisible: false
         }
     },
 
     methods: {
-      createPost(f, s, t) {
-        this.posts.push(f);
-        this.dialogVisible = false;
-      },
-      removePost(post) {
-          this.posts = this.posts.filter(i => i.id != post.id);
-      },
 
-      async fetchPosts() {
-        try {
-            this.isPostsLoading = true;
-            
-            const response = await axios.get('https://jsonplaceholder.typicode.com/posts',
-                    {   
-                        params: {
-                            _page: this.page,
-                            _limit: this.limit
-                        }
-                    });
-            
-            this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit);
+        ...mapMutations({
+            setPage: 'post/setPage',
+            setSearchText: 'post/setSearchText',
+            setSelectedSort: 'post/setSelectedSort'
+        }),
 
-            this.posts = response.data;
-  
-        } catch(err) {
-            alert(err);
-        } finally {
-            this.isPostsLoading = false;
-        }
-      },
+        ...mapActions({
+            loadMorePosts: 'post/loadMorePosts',
+            fetchPosts: 'post/fetchPosts'
+        }),
 
-      async loadMorePosts() {
-        try {
-            this.page++;
-            const response = await axios.get('https://jsonplaceholder.typicode.com/posts',
-                    {   
-                        params: {
-                            _page: this.page,
-                            _limit: this.limit
-                        }
-                    });
-            
-            // this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit);
-
-            this.posts = [...this.posts, ...response.data];
-  
-        } catch(err) {
-            alert(err);
-        }
-      }
+        createPost(f, s, t) {
+            this.posts.push(f);
+            this.dialogVisible = false;
+        },
+        removePost(post) {
+            this.posts = this.posts.filter(i => i.id != post.id);
+        },
 
     },
         
     computed: {
-        readyPosts() {
-            const strSearch = this.searchText.toLowerCase();
-            return [...this.posts]
-                .filter(i => i.title.toLowerCase().includes(strSearch) 
-                                ||  i.body.toLowerCase().includes(strSearch) )
-                .sort( (a, b) => a[this.selectedSort]?.localeCompare(b[this.selectedSort]) );
-        },
-
+        ...mapState({
+            posts:          state => state.post.posts,
+            isPostsLoading: state => state.post.isPostsLoading,
+            selectedSort:   state => state.post.selectedSort,
+            searchText:     state => state.post.searchText,
+            limit:          state => state.post.limit,
+            page:           state => state.post.page,  
+            totalPages:     state => state.post.totalPages,        
+            sortOptions:    state => state.post.sortOptions
+        }),
+        ...mapGetters({
+            readyPosts: 'post/readyPosts'
+        })
     },
 
     mounted() {
