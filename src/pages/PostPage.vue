@@ -1,7 +1,7 @@
 <template>
 
     <div>
-        <h1>The post page</h1>
+        <h1>The posts page</h1>
 
         <div class="app-btns">
 
@@ -13,9 +13,10 @@
             </my-button>   
 
             <my-input 
+                v-focus
                 style="margin: 0 15px"
                 v-model="searchText" 
-                placeholder="search">
+                placeholder="Search...">
             </my-input>
 
             <my-select
@@ -60,8 +61,8 @@
 -->
 
         <div 
+            v-intersection="loadMorePosts"
             class="observer"
-            ref="observer"
         >
         </div>
 
@@ -175,19 +176,19 @@ export default {
     mounted() {
         this.fetchPosts();
 
-        const options = {
-            // root: document.querySelector('#scrollArea'),
-            rootMargin: '0px',
-            threshold: 1.0
-        }
-        const callback = (entries, observer) => {
-            if (entries[0].isIntersecting && this.page < this.totalPages) {
-                this.loadMorePosts()
-            }
-        }
+        // const options = {
+        //     // root: document.querySelector('#scrollArea'),
+        //     rootMargin: '0px',
+        //     threshold: 1.0
+        // }
+        // const callback = (entries, observer) => {
+        //     if (entries[0].isIntersecting && this.page < this.totalPages) {
+        //         this.loadMorePosts()
+        //     }
+        // }
 
-        const observer = new IntersectionObserver(callback, options);
-        observer.observe(this.$refs.observer);
+        // const observer = new IntersectionObserver(callback, options);
+        // observer.observe(this.$refs.observer);
 
     },
 }

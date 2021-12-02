@@ -14,6 +14,7 @@ export default {
         padding: 10px 15px;
         background: none;
         border: solid 1px teal;
+        border-radius: 5px;
     } 
 
 </style>
