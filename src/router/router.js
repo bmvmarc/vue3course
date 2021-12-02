@@ -3,6 +3,7 @@ import Main from '../pages/Main.vue';
 import PostPage from '../pages/PostPage.vue';
 import About from '@/pages/About.vue';
 import PostIdPage from '@/pages/PostIdPage.vue';
+import PostsPageWithStore from '@/pages/PostsPageWithStore.vue';
 
 
 const routes = [
@@ -24,7 +25,12 @@ const routes = [
     {
         path: '/posts/:id',
         component: PostIdPage
-    }    
+    },
+    
+    {
+        path: '/store',
+        component: PostsPageWithStore
+    }
 ]
 
 const router = createRouter({

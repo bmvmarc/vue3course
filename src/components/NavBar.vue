@@ -10,6 +10,13 @@
                 @click="$router.push('/posts')">
                 Posts
             </my-button>
+
+            <my-button
+                class="nav-bar-btn"
+                @click="$router.push('/store')">
+                Store
+            </my-button>
+
             <my-button
                 class="nav-bar-btn"
                 @click="$router.push('/about')">
